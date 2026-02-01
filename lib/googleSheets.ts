@@ -197,14 +197,15 @@ function handleRequest(e) {
        
        ensureHeaders(sheet, 'ONBOARDS');
 
-       if (entry.originalSheet === 'CC' && !isCriminalCheck) {
-          const oldSheet = ss.getSheetByName(SHEETS.ONBOARD_CC);
-          if (oldSheet && oldSheet.getLastRow() > 1) {
-             const data = oldSheet.getDataRange().getValues();
-             const index = data.findIndex(r => String(r[0]) === String(entry.id));
-             if (index > -1) oldSheet.deleteRow(index + 1);
-          }
-       }
+       // MODIFIED: Kept original entry as per user request (Do not delete from ONBOARD_CC)
+       // if (entry.originalSheet === 'CC' && !isCriminalCheck) {
+       //    const oldSheet = ss.getSheetByName(SHEETS.ONBOARD_CC);
+       //    if (oldSheet && oldSheet.getLastRow() > 1) {
+       //       const data = oldSheet.getDataRange().getValues();
+       //       const index = data.findIndex(r => String(r[0]) === String(entry.id));
+       //       if (index > -1) oldSheet.deleteRow(index + 1);
+       //    }
+       // }
        
        const now = new Date();
        const created_at = Utilities.formatDate(now, TIMEZONE, "yyyy-MM-dd HH:mm:ss");
@@ -378,109 +379,109 @@ function errorResponse(message) {
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkzUSrOKuxbHyOEe5sSt0S1o_Le913e3HEluW1kwBe-cw42zNLSXgkkbg8QQ3QEUC_8w/exec';
 
 const handleResponse = async (response: Response) => {
-    const text = await response.text();
-    try {
-        return JSON.parse(text);
-    } catch (e) {
-        console.error("Invalid JSON from Server:", text);
-        return { error: `Server Error: ${text.substring(0, 100)}` };
-    }
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error("Invalid JSON from Server:", text);
+    return { error: `Server Error: ${text.substring(0, 100)}` };
+  }
 };
 
 export const sheetsApi = {
-    getUser: async (msisdn: string) => {
-        try {
-            const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getUser&msisdn=${msisdn}`);
-            return await handleResponse(response);
-        } catch (e: any) {
-            console.error("Network/Fetch Error:", e);
-            return { error: e.message || "Network Error" };
-        }
-    },
-
-    createUser: async (user: any) => {
-        try {
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: 'createUser', ...user })
-            });
-            return await handleResponse(response);
-        } catch (e: any) {
-             console.error("Network/Fetch Error:", e);
-             return { error: e.message || "Network Error" };
-        }
-    },
-
-    checkTransactionDuplicates: async (ids: string[], type: 'RGM' | 'MAU') => {
-         try {
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: 'checkDuplicates', ids, type })
-            });
-            return await handleResponse(response);
-        } catch (e: any) {
-             console.error("Network/Fetch Error:", e);
-             return { error: e.message || "Network Error" };
-        }
-    },
-
-    submitBatch: async (rows: any[], type: 'RGM' | 'MAU') => {
-        try {
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: 'submitBatch', rows, type })
-            });
-            return await handleResponse(response);
-        } catch (e: any) {
-             console.error("Network/Fetch Error:", e);
-             return { error: e.message || "Network Error" };
-        }
-    },
-
-    submitOnboard: async (entry: OnboardEntry) => {
-        try {
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: 'submitOnboard', entry })
-            });
-            return await handleResponse(response);
-        } catch (e: any) {
-             console.error("Network/Fetch Error:", e);
-             return { error: e.message || "Network Error" };
-        }
-    },
-
-    getOnboards: async (sheetType: 'CC' | 'Regular', msisdn: string) => {
-        try {
-            const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getOnboards&sheetType=${sheetType}&msisdn=${msisdn}&_t=${Date.now()}`);
-            return await handleResponse(response);
-        } catch (e: any) {
-             console.error("Network/Fetch Error:", e);
-             return { error: e.message || "Network Error" };
-        }
-    },
-
-    getMonthlyStats: async (identifier: string, startDate: string, endDate: string) => {
-         try {
-            const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getStats&identifier=${identifier}&startDate=${startDate}&endDate=${endDate}`);
-            return await handleResponse(response);
-        } catch (e) {
-            console.error(e);
-            return { rgmCount: 0, mauCount: 0, onboardCount: 0, ccCount: 0 };
-        }
-    },
-
-    getReportData: async (type: 'RGM' | 'MAU', startDate: string, endDate: string) => {
-        try {
-            const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getReport&type=${type}&startDate=${startDate}&endDate=${endDate}`);
-            return await handleResponse(response);
-        } catch (e: any) {
-             console.error("Network/Fetch Error:", e);
-             return { error: e.message || "Network Error" };
-        }
+  getUser: async (msisdn: string) => {
+    try {
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getUser&msisdn=${msisdn}`);
+      return await handleResponse(response);
+    } catch (e: any) {
+      console.error("Network/Fetch Error:", e);
+      return { error: e.message || "Network Error" };
     }
+  },
+
+  createUser: async (user: any) => {
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: 'createUser', ...user })
+      });
+      return await handleResponse(response);
+    } catch (e: any) {
+      console.error("Network/Fetch Error:", e);
+      return { error: e.message || "Network Error" };
+    }
+  },
+
+  checkTransactionDuplicates: async (ids: string[], type: 'RGM' | 'MAU') => {
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: 'checkDuplicates', ids, type })
+      });
+      return await handleResponse(response);
+    } catch (e: any) {
+      console.error("Network/Fetch Error:", e);
+      return { error: e.message || "Network Error" };
+    }
+  },
+
+  submitBatch: async (rows: any[], type: 'RGM' | 'MAU') => {
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: 'submitBatch', rows, type })
+      });
+      return await handleResponse(response);
+    } catch (e: any) {
+      console.error("Network/Fetch Error:", e);
+      return { error: e.message || "Network Error" };
+    }
+  },
+
+  submitOnboard: async (entry: OnboardEntry) => {
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: 'submitOnboard', entry })
+      });
+      return await handleResponse(response);
+    } catch (e: any) {
+      console.error("Network/Fetch Error:", e);
+      return { error: e.message || "Network Error" };
+    }
+  },
+
+  getOnboards: async (sheetType: 'CC' | 'Regular', msisdn: string) => {
+    try {
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getOnboards&sheetType=${sheetType}&msisdn=${msisdn}&_t=${Date.now()}`);
+      return await handleResponse(response);
+    } catch (e: any) {
+      console.error("Network/Fetch Error:", e);
+      return { error: e.message || "Network Error" };
+    }
+  },
+
+  getMonthlyStats: async (identifier: string, startDate: string, endDate: string) => {
+    try {
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getStats&identifier=${identifier}&startDate=${startDate}&endDate=${endDate}`);
+      return await handleResponse(response);
+    } catch (e) {
+      console.error(e);
+      return { rgmCount: 0, mauCount: 0, onboardCount: 0, ccCount: 0 };
+    }
+  },
+
+  getReportData: async (type: 'RGM' | 'MAU', startDate: string, endDate: string) => {
+    try {
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getReport&type=${type}&startDate=${startDate}&endDate=${endDate}`);
+      return await handleResponse(response);
+    } catch (e: any) {
+      console.error("Network/Fetch Error:", e);
+      return { error: e.message || "Network Error" };
+    }
+  }
 };
