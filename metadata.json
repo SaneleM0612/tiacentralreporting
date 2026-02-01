@@ -1,0 +1,5 @@
+{
+  "name": "Reporting Portal",
+  "description": "A modern web application for team members to track RGM submissions and agent statuses, with an admin panel for data exports.",
+  "requestFramePermissions": []
+}
